@@ -1,0 +1,13 @@
+section>pre>code .erase {
+    text-decoration: line-through;
+}
+section>pre>code .error {
+    text-decoration: underline wavy #e00;
+}
+
+section>pre.split-horizontal {
+    display: flex;
+}
+section>pre.split-horizontal>* {
+    flex: 1;
+}
