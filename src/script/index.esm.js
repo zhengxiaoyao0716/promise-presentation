@@ -4,9 +4,9 @@ import insertCode from './insert-code.js';
 import flowCode from './flow-code.js';
 
 async function main() {
-    const $root = document.querySelector('#container');
-    insertCode($root);
-    flowCode($root);
+    insertCode(document.querySelector('#container'));
+
+    flowCode(document.querySelector('#flowCode'), [{ begin: 0, end: 5, color: '#f66' }, { begin: 10, end: 15, color: '#66f' }, { begin: 20, end: 23, color: '#f6f' }]);
 
     Reveal.initialize({
         plugins: [Highlight],
