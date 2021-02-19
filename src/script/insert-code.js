@@ -470,6 +470,108 @@ const codes = {
             title: '数据流动示意图',
         }],
     ],
+
+    code05: [
+        [{
+            code: `
+            Promise&lt;Param&gt; someMethod(Arg0 arg0, Arg1 arg1 /*, Argi... argi*/) {
+                return Promise.ofParam("result from some proxy");
+            }
+
+            // ...
+                someProxy.someMethod(arg0, arg1 /*, argi...*/)
+                    .onSuccessThen((val, ctx) -> {
+                        System.out.println("- onSuccessThen - " + val.get());
+                        return otherProxy.someMethod(); // 返回下一个远程调用
+                    })
+                    .onFailureThen((err, ctx) -> {
+                        System.out.println("- onFailureThen - " + err.message);
+                        return Promise.ofValue("catched"); // 捕获异常
+                    })
+                    .onSuccess((val, ctx) -> {
+                        System.out.println("- onSuccess - " + val);
+                        doSomeThing(val); // 异步请求成功，执行某操作
+                    })
+                    .onFailure((err, ctx) -> {
+                        System.out.println("- onFailure - " + err.message);
+                        handleException(err); // 处理所有未捕获异常
+                    })
+            // ...
+
+            // out:
+                println("- onSuccessThen - result from some proxy");
+                println("- onSuccess - result from other proxy");
+            `,
+            title: '正常数据流动',
+            lineNumbers: '2|1|6|7|8-9|14-15|16-17|25-27|2',
+        }],
+        [{
+            code: `
+            Promise&lt;Param&gt; someMethod(Arg0 arg0, Arg1 arg1 /*, Argi... argi*/) {
+                throw new Exception("one exception");
+            }
+
+            // ...
+                someProxy.someMethod(arg0, arg1 /*, argi...*/)
+                    .onSuccessThen((val, ctx) -> {
+                        System.out.println("- onSuccessThen - " + val.get());
+                        return otherProxy.someMethod(); // 返回下一个远程调用
+                    })
+                    .onFailureThen((err, ctx) -> {
+                        System.out.println("- onFailureThen - " + err.message);
+                        return Promise.ofValue("catched"); // 捕获异常
+                    })
+                    .onSuccess((val, ctx) -> {
+                        System.out.println("- onSuccess - " + val);
+                        doSomeThing(val); // 异步请求成功，执行某操作
+                    })
+                    .onFailure((err, ctx) -> {
+                        System.out.println("- onFailure - " + err.message);
+                        handleException(err); // 处理所有未捕获异常
+                    })
+            // ...
+
+            // out:
+                println("- onFailureThen - one exception");
+                println("- onSuccess - catched");
+            `,
+            title: '异常后捕获',
+            lineNumbers: '2|1|6|10-11|12-13|14-15|16-17|25-27|13',
+        }],
+        [{
+            code: `
+            Promise&lt;Param&gt; someMethod(Arg0 arg0, Arg1 arg1 /*, Argi... argi*/) {
+                throw new Exception("one exception");
+            }
+
+            // ...
+                someProxy.someMethod(arg0, arg1 /*, argi...*/)
+                    .onSuccessThen((val, ctx) -> {
+                        System.out.println("- onSuccessThen - " + val.get());
+                        return otherProxy.someMethod(); // 返回下一个远程调用
+                    })
+                    .onFailureThen((err, ctx) -> {
+                        System.out.println("- onFailureThen - " + err.message);
+                        throw new Exception("new exception"); // 抛出新异常
+                    })
+                    .onSuccess((val, ctx) -> {
+                        System.out.println("- onSuccess - " + val);
+                        doSomeThing(val); // 异步请求成功，执行某操作
+                    })
+                    .onFailure((err, ctx) -> {
+                        System.out.println("- onFailure - " + err.message);
+                        handleException(err); // 处理所有未捕获异常
+                    })
+            // ...
+
+            // out:
+                println("- onFailureThen - one exception");
+                println("- onFailure - new exception");
+            `,
+            title: '异常后传递',
+            lineNumbers: '13|2|1|6|10-11|12-13|18-19|20-21|25-27',
+        }],
+    ],
 };
 
 /**
